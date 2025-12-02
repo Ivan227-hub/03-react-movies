@@ -25,7 +25,8 @@ const App: React.FC = () => {
         toast.error("No movies found for your request.");
       }
       setMovies(results);
-    } catch  {
+    } catch (err) {
+      console.error(err);
       setError(true);
     } finally {
       setLoading(false);
