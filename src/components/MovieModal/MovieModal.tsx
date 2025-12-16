@@ -10,25 +10,38 @@ interface MovieModalProps {
 
 const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
   useEffect(() => {
+    // Сохраняем текущее значение overflow
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+
+    // Блокируем скрол при открытии модалки
+    document.body.style.overflow = "hidden";
+
+    // Обработчик ESC
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleEsc);
+
+    // Очистка при закрытии модалки
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = originalStyle;
       window.removeEventListener("keydown", handleEsc);
     };
   }, [onClose]);
+
+  // Закрытие по клику на фон
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   return ReactDOM.createPortal(
     <div
       className={styles.backdrop}
       role="dialog"
       aria-modal="true"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      onClick={handleBackdropClick}
     >
       <div className={styles.modal}>
         <button
@@ -55,7 +68,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
         </div>
       </div>
     </div>,
-    document.body
+    document.getElementById("modal-root")!
   );
 };
 
