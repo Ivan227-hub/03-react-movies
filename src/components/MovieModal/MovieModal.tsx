@@ -10,31 +10,34 @@ interface MovieModalProps {
 
 const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
   useEffect(() => {
-    // Сохраняем текущее значение overflow
-    const originalStyle = window.getComputedStyle(document.body).overflow;
+    const originalOverflow = document.body.style.overflow;
 
-    // Блокируем скрол при открытии модалки
     document.body.style.overflow = "hidden";
 
-    // Обработчик ESC
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+      }
     };
+
     window.addEventListener("keydown", handleEsc);
 
-    // Очистка при закрытии модалки
     return () => {
-      document.body.style.overflow = originalStyle;
+      document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", handleEsc);
     };
   }, [onClose]);
 
-  // Закрытие по клику на фон
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleBackdropClick = (
+    e: React.MouseEvent<HTMLDivElement>
+  ) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
+
+  const modalRoot = document.getElementById("modal-root");
+  if (!modalRoot) return null;
 
   return ReactDOM.createPortal(
     <div
@@ -51,11 +54,15 @@ const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
         >
           &times;
         </button>
-        <img
-          src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
-          alt={movie.title}
-          className={styles.image}
-        />
+
+        {movie.backdrop_path && (
+          <img
+            src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+            alt={movie.title}
+            className={styles.image}
+          />
+        )}
+
         <div className={styles.content}>
           <h2>{movie.title}</h2>
           <p>{movie.overview}</p>
@@ -68,7 +75,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
         </div>
       </div>
     </div>,
-    document.getElementById("modal-root")!
+    modalRoot
   );
 };
 
